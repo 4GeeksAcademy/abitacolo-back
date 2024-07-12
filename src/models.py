@@ -31,12 +31,16 @@ class Mueble(db.Model):
     __tablename__ = 'mueble'
     
     id = Column(Integer, primary_key=True)
+    nombre = Column(String(50), nullable=False)
+    personalidad = Column(String(50), nullable=False)
     disponible = Column(Boolean, nullable=False)
     color = Column(String(50), nullable=False)
-    espacio = Column(Enum("salón/comedor", "dormitorio", "recibidor", "zona de trabajo", "exterior", "otras", name="espacio_muebles"), nullable=False)
-    estilo = Column(Enum("industrial", "clásico", "minimalista", "nórdico", "rústico", "vintage/mid-century", "otras", name="estilo_muebles"), nullable=False)
+    espacio = Column(Enum("salón/comedor", "dormitorio", "recibidor", "zona de trabajo", "exterior", "otras", name="espacio_mueble"), nullable=False)
+    estilo = Column(Enum("industrial", "clásico", "minimalista", "nórdico", "rústico", "vintage/mid-century", "otras", name="estilo_mueble"), nullable=False)
+    categoria = Column(Enum("armarios y cómodas", "estanterias", "mesas y escritorios", "aparadores", "camas y cabaceros", "mesillas", "sillones y sofás","lámparas","sillas y taburetes","percheros","marcos y espejos","otros objetos", name="categoria_mueble"), nullable=False)
     precio_mes = Column(Integer, nullable=False)
     medidas = Column(String(50), nullable=False)
+    imagen = Column(String(255), nullable=True)
 
     alquileres = relationship('Alquiler', back_populates='mueble')
     favoritos = relationship('Favorito', back_populates='mueble')
@@ -47,14 +51,17 @@ class Mueble(db.Model):
     def serialize(self):
         return {
             "id": self.id,
+            "nombre": self.nombre,
             "disponible": self.disponible,
             "color": self.color,
             "espacio": self.espacio.value,
             "estilo": self.estilo.value,
+            "categoria": self.categoria.value,
             "precio_mes": self.precio_mes,
-            "medidas": self.medidas
+            "medidas": self.medidas,
+            "imagen": self.imagen
         }
-    
+
 class Alquiler(db.Model):
     __tablename__ = 'alquiler'
     
@@ -98,5 +105,5 @@ class Favorito(db.Model):
         return {
             "id": self.id,
             "user_id": self.user_id,
-            "mueble_id": self.mueble_id,
+            "mueble_id": self.mueble_id
         }
