@@ -8,8 +8,8 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
-#from models import Persons
+from models import db, User, Mueble
+#from models import Person
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
@@ -50,6 +50,33 @@ def create_user():
     db.session.add(user)
     db.session.commit()
     return jsonify(user.serialize()), 201
+
+@app.route('/mueble', methods=['POST'])
+def create_mueble():
+    request_body = request.get_json()
+    
+    mueble = Mueble(
+        id_codigo=request_body['id_codigo'],
+        nombre=request_body['nombre'],
+        disponible=request_body['disponible'],
+        color=request_body['color'],
+        espacio=request_body['espacio'],
+        estilo=request_body['estilo'],
+        categoria=request_body['categoria'],
+        precio_mes=request_body['precio_mes'],
+        ancho=request_body['ancho'],
+        altura=request_body['altura'],
+        fondo=request_body['fondo']
+
+    )
+    db.session.add(mueble)
+    db.session.commit()
+    return jsonify(mueble.serialize()), 201
+
+@app.route('/mueble', methods=['GET'])
+def get_all_muebles():
+    all_muebles = Mueble.query.all()
+    return jsonify([mueble.serialize() for mueble in all_muebles])
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
