@@ -77,6 +77,36 @@ def create_mueble():
 def get_all_muebles():
     all_muebles = Mueble.query.all()
     return jsonify([mueble.serialize() for mueble in all_muebles])
+@app.route('/mueble/<string:id_codigo>', methods=['GET'])
+def get_mueble(id_codigo):
+    mueble = Mueble.query.get(id_codigo)
+    if mueble:
+     return jsonify(mueble.serialize()),201
+    else:
+        return jsonify({"msg" : "Mueble no encontrado"})
+
+@app.route('/mueble/<string:id_codigo>', methods=['DELETE'])
+def delete_mueble(id_codigo):
+    mueble = Mueble.query.get(id_codigo)
+    if mueble:
+        db.session.delete(mueble)
+        db.session.commit()
+        return jsonify({"msg": "Mueble borrado correctamente"})
+    else:
+        return jsonify({"msg": "No encontramos el mueble que desea eliminar"})
+
+@app.route('/mueble/<string:id_codigo>', methods=['PUT'])
+def modificar_mueble(id_codigo):
+   mueble = Mueble.query.get(id_codigo)
+   print(mueble)
+   request_json = request.get_json()
+
+   if 'nombre' in request_json:
+       mueble.nombre = request_json['nombre']
+       db.session.commit()
+       return jsonify({"Nuevo nombre"  : mueble.nombre})
+   else:
+       return jsonify({"msg": "No hemos encontrado el mueble para actualizar"})
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':

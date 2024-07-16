@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: aabcb308a7a1
+Revision ID: fdc419bcbf94
 Revises: 
-Create Date: 2024-07-15 18:17:44.769379
+Create Date: 2024-07-16 06:37:20.598755
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'aabcb308a7a1'
+revision = 'fdc419bcbf94'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -27,8 +27,8 @@ def upgrade():
     sa.Column('estilo', sa.Enum('industrial', 'clásico', 'minimalista', 'nórdico', 'rústico', 'vintage/mid-century', 'otras', name='estilo_mueble'), nullable=False),
     sa.Column('categoria', sa.Enum('armarios y cómodas', 'estanterias y baldas', 'mesas y escritorios', 'aparadores', 'camas y cabaceros', 'mesillas', 'sillones y sofás', 'lámparas', 'sillas y taburetes', 'percheros', 'marcos y espejos', 'otros objetos', name='categoria_mueble'), nullable=False),
     sa.Column('precio_mes', sa.Integer(), nullable=False),
-    sa.Column('fecha_entrega', sa.Date(), nullable=True),
-    sa.Column('fecha_recogida', sa.Date(), nullable=True),
+    sa.Column('fecha_entrega', sa.String(), nullable=True),
+    sa.Column('fecha_recogida', sa.String(), nullable=True),
     sa.Column('ancho', sa.Float(), nullable=False),
     sa.Column('altura', sa.Float(), nullable=False),
     sa.Column('fondo', sa.Float(), nullable=False),
