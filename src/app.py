@@ -36,6 +36,7 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
+#Post de Usuario
 @app.route('/users', methods=['POST'])
 def create_user():
     request = request.json
@@ -50,6 +51,22 @@ def create_user():
     db.session.add(user)
     db.session.commit()
     return jsonify(user.serialize()), 201
+#Get de usuarios
+@app.route('/users', methods=['GET'])
+def get_all_user():
+    all_users = User.query.all()
+    return jsonify([user.serialize() for user in all_users])
+
+@app.route('/users/<int:id>', methods=['GET'])
+def get_user(id):
+    user = User.query.get(id)
+    if user:
+        return jsonify({user.serialize()}),201
+    else:
+        return jsonify({'msg': 'No hemos encontrado el usuario que buscas, prueba a registrarte'})
+
+
+
 
 @app.route('/mueble', methods=['POST'])
 def create_mueble():
