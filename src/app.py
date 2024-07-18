@@ -155,6 +155,7 @@ def create_mueble():
 def get_all_muebles():
     all_muebles = Mueble.query.all()
     return jsonify([mueble.serialize() for mueble in all_muebles])
+
 @app.route('/mueble/<string:id_codigo>', methods=['GET'])
 def get_mueble(id_codigo):
     mueble = Mueble.query.get(id_codigo)
