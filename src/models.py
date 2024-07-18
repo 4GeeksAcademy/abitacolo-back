@@ -43,7 +43,7 @@ class Mueble(db.Model):
     ancho = Column(Float, nullable=False)
     altura = Column(Float, nullable=False)
     fondo = Column(Float, nullable=False)
-
+    personalidad = Column(String, nullable=False)
     imagen = Column(String(255), nullable=True)
 
     alquileres = relationship('Alquiler', back_populates='mueble')
@@ -67,7 +67,8 @@ class Mueble(db.Model):
             "ancho": self.ancho,
             "altura": self.altura,
             "fondo": self.fondo,
-            "imagen": self.imagen
+            "imagen": self.imagen,
+            "personalidad": self.personalidad
         }
 
 class Alquiler(db.Model):

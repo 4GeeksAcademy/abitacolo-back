@@ -39,31 +39,51 @@ def sitemap():
 #Post de Usuario
 @app.route('/users', methods=['POST'])
 def create_user():
-    request = request.json
-    if not request or not 'email' in request or not 'password' in request or not 'address' in request:
+    data = request.get_json()
+    if not data or not 'email' in data or not 'password' in data or not 'address' in data:
         abort(400)
     user = User(
-        email=request['email'],
-        password=request['password'],
-        address=request['address'],
-        is_active=request.get('is_active', True)
+        email=data['email'],
+        password=data['password'],
+        address=data['address'],
+        is_active=data.get('is_active', True)
     )
     db.session.add(user)
     db.session.commit()
     return jsonify(user.serialize()), 201
-#Get de usuarios
+#Get de todos los usuarios
 @app.route('/users', methods=['GET'])
 def get_all_user():
     all_users = User.query.all()
     return jsonify([user.serialize() for user in all_users])
-
+#Get de un usuario único
 @app.route('/users/<int:id>', methods=['GET'])
 def get_user(id):
-    user = User.query.get(id)
-    if user:
-        return jsonify({user.serialize()}),201
+    selectedUser = User.query.get(id)
+    
+    if selectedUser:
+        return jsonify(selectedUser.serialize()),201
     else:
         return jsonify({'msg': 'No hemos encontrado el usuario que buscas, prueba a registrarte'})
+#Borrar usuario
+@app.route('/users/<int:id>', methods=['DELETE'])
+def delete_user(id):
+    selectedUser = User.query.get(id)
+    if selectedUser:
+        db.session.delete(selectedUser)
+        db.session.commit()
+        return jsonify({'msg': f'Hemos borrado correctamente el usuario {id}'}),201 
+    else:
+        return jsonify({'msg': 'No hemos encontrado el usuario'})
+
+
+
+
+
+#Editar usuario
+@app.route('users/<int:id>', methods=['PUT'])
+def edit_user(id):
+
 
 
 
