@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, Mueble
+from models import db, User, Mueble, Favorito
 from sqlalchemy.orm.exc import NoResultFound
 #from models import Person
 
@@ -110,22 +110,65 @@ def editar_usuario(id):
         "mueble": user.serialize()
     }), 200   
 
+#GET Favoritos
+@app.route('/user/favourites', methods=['GET'])
+def get_userFavourites():
+   favourites = Favorito.query.all()
+   all_user_favourites = list(map(lambda x : x.serialize(), favourites))
+    
+   return jsonify(all_user_favourites),201
 
+#Post de Favoritos
 
+""" @app.route('/favourite/mueble/<string:id_codigo>', methods=['POST'])
+def post_userFavourites(id_codigo):
+    data = request.get_json()
+    user_id = data.get("user_id")
 
+    user = User.query.get(id)
 
+    mueble_favourite = Mueble.query.get(id_codigo)
 
+    user_favourite = Favorito(
+       user_id = user.id,
+        mueble_id = id_codigo
+    )
 
+    db.session.add(user_favourite)
+    db.session.commit()
 
+    return jsonify(user_favourite.serialize()),201 """
 
+@app.route('/favourite/mueble/<string:id_codigo>', methods=['POST'])
+def post_user_favourites(id_codigo):
+    data = request.get_json()
+    user_id = data.get("user_id")
 
+    if not user_id:
+        return jsonify({"error": "User ID is required"}), 400
 
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
 
+    mueble = Mueble.query.get(id_codigo)
+    if not mueble:
+        return jsonify({"error": "Mueble not found"}), 404
 
+    existing_favorite = Favorito.query.filter_by(user_id=user_id, mueble_id=id_codigo).first()
+    if existing_favorite:
+        return jsonify({"error": "Favorite already exists"}), 409
 
+    user_favourite = Favorito(
+        user_id=user_id,
+        mueble_id=id_codigo
+    )
 
+    db.session.add(user_favourite)
+    db.session.commit()
 
-
+    return jsonify(user_favourite.serialize()), 201
+    
 
 @app.route('/mueble', methods=['POST'])
 def create_mueble():

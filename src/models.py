@@ -23,7 +23,8 @@ class User(db.Model):
             "id": self.id,
             "email": self.email,
             "is_active": self.is_active,
-            "address": self.address
+            "address": self.address,
+             "favourites": [favourite.serialize() for favourite in self.favourites ]
         }
 
 class Mueble(db.Model):
@@ -67,7 +68,8 @@ class Mueble(db.Model):
             "altura": self.altura,
             "fondo": self.fondo,
             "imagen": self.imagen,
-            "personalidad": self.personalidad
+            "personalidad": self.personalidad,
+            "favoritos": self.favoritos
         }
 
 class Alquiler(db.Model):
