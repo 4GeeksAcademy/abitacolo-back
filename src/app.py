@@ -9,6 +9,7 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User, Mueble
+from sqlalchemy.orm.exc import NoResultFound
 #from models import Person
 
 app = Flask(__name__)
@@ -76,13 +77,51 @@ def delete_user(id):
     else:
         return jsonify({'msg': 'No hemos encontrado el usuario'})
 
+#PUT USUARIO
+@app.route('/users/<int:id>', methods=['PUT'])
+def editar_usuario(id):
+    try:
+        user = User.query.filter_by(id=id).one()
+    except NoResultFound:
+        abort(404, description="Usuario no encontrado")
+
+    request_json = request.get_json()
+
+    if not request_json:
+        abort(400, description="No se proporcionaron datos para actualizar")
+
+    # Lista de campos permitidos para actualizar
+    campos_permitidos = ['email', 'password', 'address',
+                         ]
+
+    # Actualizar los campos del mueble
+    for key, value in request_json.items():
+        if key in campos_permitidos:
+            setattr(user, key, value)
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        abort(500, description=f"Error al guardar en la base de datos: {str(e)}")
+
+    return jsonify({
+        "mensaje": "Usuario actualizado correctamente",
+        "mueble": user.serialize()
+    }), 200   
 
 
 
 
-#Editar usuario
-@app.route('users/<int:id>', methods=['PUT'])
-def edit_user(id):
+
+
+
+
+
+
+
+
+
 
 
 
@@ -103,7 +142,9 @@ def create_mueble():
         precio_mes=request_body['precio_mes'],
         ancho=request_body['ancho'],
         altura=request_body['altura'],
-        fondo=request_body['fondo']
+        fondo=request_body['fondo'],
+        personalidad = request_body['personalidad']
+
 
     )
     db.session.add(mueble)
@@ -134,17 +175,37 @@ def delete_mueble(id_codigo):
 
 @app.route('/mueble/<string:id_codigo>', methods=['PUT'])
 def modificar_mueble(id_codigo):
-   mueble = Mueble.query.get(id_codigo)
-   print(mueble)
-   request_json = request.get_json()
+    try:
+        mueble = Mueble.query.filter_by(id_codigo=id_codigo).one()
+    except NoResultFound:
+        abort(404, description="Mueble no encontrado")
 
-   if 'nombre' in request_json:
-       mueble.nombre = request_json['nombre']
-       db.session.commit()
-       return jsonify({"Nuevo nombre"  : mueble.nombre})
-   else:
-       return jsonify({"msg": "No hemos encontrado el mueble para actualizar"})
+    request_json = request.get_json()
 
+    if not request_json:
+        abort(400, description="No se proporcionaron datos para actualizar")
+
+    # Lista de campos permitidos para actualizar
+    campos_permitidos = ['nombre', 'disponible', 'color', 'espacio', 'estilo', 'categoria', 
+                         'precio_mes', 'fecha_entrega', 'fecha_recogida', 'ancho', 'altura', 
+                         'fondo', 'personalidad', 'imagen']
+
+    # Actualizar los campos del mueble
+    for key, value in request_json.items():
+        if key in campos_permitidos:
+            setattr(mueble, key, value)
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        abort(500, description=f"Error al guardar en la base de datos: {str(e)}")
+
+    return jsonify({
+        "mensaje": "Mueble actualizado correctamente",
+        "mueble": mueble.serialize()
+    }), 200
+  
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
