@@ -36,7 +36,7 @@ class Mueble(db.Model):
     color = Column(Enum("Natural", "Blanco / Beige / Gris", "Negro / Gris Oscuro", "Tonos Pastel", "Tonos Vivos", "Dorado / Plateado", name="color_mueble"), nullable=False)
     espacio = Column(Enum("Salón / Comedor", "Dormitorio", "Recibidor", "Zona de Trabajo", "Exterior", "Otras", name="espacio_mueble"), nullable=False)
     estilo = Column(Enum("Industrial", "Clásico", "Minimalista", "Nórdico", "Rústico", "Vintage / Mid-Century", "Otros", name="estilo_mueble"), nullable=False)
-    categoria = Column(Enum("Armarios Y Cómodas", "Estanterias Y Baldas", "Mesas Y Escritorios", "Aparadores", "Camas Y Cabaceros", "Mesillas", "Sillones Y Sofás", "Lámparas", "Sillas Y Taburetes", "Percheros", "Marcos y Espejos", "Otros Objetos", name="categoria_mueble"), nullable=False)
+    categoria = Column(Enum("Armarios y Cómodas", "Estanterias y Baldas", "Mesas y Escritorios", "Aparadores", "Camas y Cabeceros", "Mesillas", "Sillones y Sofás", "Lámparas", "Sillas y Taburetes", "Percheros", "Marcos y Espejos", "Otros Objetos", name="categoria_mueble"), nullable=False)
     precio_mes = Column(Integer, nullable=False)
     fecha_entrega = Column(String, nullable= True)
     fecha_recogida = Column(String, nullable= True)

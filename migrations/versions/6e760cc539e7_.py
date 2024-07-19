@@ -1,14 +1,8 @@
 """empty message
 
-<<<<<<<< HEAD:migrations/versions/1271004f27d8_.py
-Revision ID: 1271004f27d8
+Revision ID: 6e760cc539e7
 Revises: 
-Create Date: 2024-07-18 10:57:03.068449
-========
-Revision ID: 14c678161664
-Revises: 
-Create Date: 2024-07-19 11:26:57.688982
->>>>>>>> f1d2fe65a0e4e6a0b8edc334f4d0685d2af36721:migrations/versions/14c678161664_.py
+Create Date: 2024-07-19 12:04:14.307196
 
 """
 from alembic import op
@@ -16,11 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-<<<<<<<< HEAD:migrations/versions/1271004f27d8_.py
-revision = '1271004f27d8'
-========
-revision = '14c678161664'
->>>>>>>> f1d2fe65a0e4e6a0b8edc334f4d0685d2af36721:migrations/versions/14c678161664_.py
+revision = '6e760cc539e7'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -35,7 +25,7 @@ def upgrade():
     sa.Column('color', sa.Enum('Natural', 'Blanco / Beige / Gris', 'Negro / Gris Oscuro', 'Tonos Pastel', 'Tonos Vivos', 'Dorado / Plateado', name='color_mueble'), nullable=False),
     sa.Column('espacio', sa.Enum('Salón / Comedor', 'Dormitorio', 'Recibidor', 'Zona de Trabajo', 'Exterior', 'Otras', name='espacio_mueble'), nullable=False),
     sa.Column('estilo', sa.Enum('Industrial', 'Clásico', 'Minimalista', 'Nórdico', 'Rústico', 'Vintage / Mid-Century', 'Otros', name='estilo_mueble'), nullable=False),
-    sa.Column('categoria', sa.Enum('Armarios Y Cómodas', 'Estanterias Y Baldas', 'Mesas Y Escritorios', 'Aparadores', 'Camas Y Cabaceros', 'Mesillas', 'Sillones Y Sofás', 'Lámparas', 'Sillas Y Taburetes', 'Percheros', 'Marcos y Espejos', 'Otros Objetos', name='categoria_mueble'), nullable=False),
+    sa.Column('categoria', sa.Enum('Armarios y Cómodas', 'Estanterias y Baldas', 'Mesas y Escritorios', 'Aparadores', 'Camas y Cabeceros', 'Mesillas', 'Sillones y Sofás', 'Lámparas', 'Sillas y Taburetes', 'Percheros', 'Marcos y Espejos', 'Otros Objetos', name='categoria_mueble'), nullable=False),
     sa.Column('precio_mes', sa.Integer(), nullable=False),
     sa.Column('fecha_entrega', sa.String(), nullable=True),
     sa.Column('fecha_recogida', sa.String(), nullable=True),
