@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 1c8c466606a8
+Revision ID: 14c678161664
 Revises: 
-Create Date: 2024-07-18 10:16:15.317209
+Create Date: 2024-07-19 11:26:57.688982
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '1c8c466606a8'
+revision = '14c678161664'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,10 +22,10 @@ def upgrade():
     sa.Column('id_codigo', sa.String(), nullable=False),
     sa.Column('nombre', sa.String(length=50), nullable=False),
     sa.Column('disponible', sa.Boolean(), nullable=False),
-    sa.Column('color', sa.Enum('Natural', 'Blanco/Beig/Gris', 'Negro/Gris Oscuro', 'Tonos Pastel', 'Tonos Vivos', 'Dorado/Plateado', name='color_mueble'), nullable=False),
-    sa.Column('espacio', sa.Enum('salón/comedor', 'dormitorio', 'recibidor', 'zona de trabajo', 'exterior', 'otras', name='espacio_mueble'), nullable=False),
-    sa.Column('estilo', sa.Enum('industrial', 'clásico', 'minimalista', 'nórdico', 'rústico', 'vintage/mid-century', 'otras', name='estilo_mueble'), nullable=False),
-    sa.Column('categoria', sa.Enum('armarios y cómodas', 'estanterias y baldas', 'mesas y escritorios', 'aparadores', 'camas y cabaceros', 'mesillas', 'sillones y sofás', 'lámparas', 'sillas y taburetes', 'percheros', 'marcos y espejos', 'otros objetos', name='categoria_mueble'), nullable=False),
+    sa.Column('color', sa.Enum('Natural', 'Blanco / Beige / Gris', 'Negro / Gris Oscuro', 'Tonos Pastel', 'Tonos Vivos', 'Dorado / Plateado', name='color_mueble'), nullable=False),
+    sa.Column('espacio', sa.Enum('Salón / Comedor', 'Dormitorio', 'Recibidor', 'Zona de Trabajo', 'Exterior', 'Otras', name='espacio_mueble'), nullable=False),
+    sa.Column('estilo', sa.Enum('Industrial', 'Clásico', 'Minimalista', 'Nórdico', 'Rústico', 'Vintage / Mid-Century', 'Otros', name='estilo_mueble'), nullable=False),
+    sa.Column('categoria', sa.Enum('Armarios Y Cómodas', 'Estanterias Y Baldas', 'Mesas Y Escritorios', 'Aparadores', 'Camas Y Cabaceros', 'Mesillas', 'Sillones Y Sofás', 'Lámparas', 'Sillas Y Taburetes', 'Percheros', 'Marcos y Espejos', 'Otros Objetos', name='categoria_mueble'), nullable=False),
     sa.Column('precio_mes', sa.Integer(), nullable=False),
     sa.Column('fecha_entrega', sa.String(), nullable=True),
     sa.Column('fecha_recogida', sa.String(), nullable=True),

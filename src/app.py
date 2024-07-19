@@ -171,28 +171,89 @@ def post_user_favourites(id_codigo):
     
 
 @app.route('/mueble', methods=['POST'])
-def create_mueble():
+def create_muebles():
     request_body = request.get_json()
-    
-    mueble = Mueble(
-        id_codigo=request_body['id_codigo'],
-        nombre=request_body['nombre'],
-        disponible=request_body['disponible'],
-        color=request_body['color'],
-        espacio=request_body['espacio'],
-        estilo=request_body['estilo'],
-        categoria=request_body['categoria'],
-        precio_mes=request_body['precio_mes'],
-        ancho=request_body['ancho'],
-        altura=request_body['altura'],
-        fondo=request_body['fondo'],
-        personalidad = request_body['personalidad']
+
+    # Si el cuerpo de la solicitud es una lista, procesar como una lista de muebles
+    if isinstance(request_body, list):
+        muebles = []
+        for mueble_data in request_body:
+            try:
+                # Validar presencia de todos los campos requeridos
+                required_fields = ['id_codigo', 'nombre', 'disponible', 'color', 'espacio', 'estilo', 'categoria', 'precio_mes', 'ancho', 'altura', 'fondo', 'personalidad']
+                for field in required_fields:
+                    if field not in mueble_data:
+                        return jsonify({"error": f"Missing field: {field}"}), 400
+
+                mueble = Mueble(
+                    id_codigo=mueble_data['id_codigo'],
+                    nombre=mueble_data['nombre'],
+                    disponible=mueble_data['disponible'],
+                    color=mueble_data['color'],
+                    espacio=mueble_data['espacio'],
+                    estilo=mueble_data['estilo'],
+                    categoria=mueble_data['categoria'],
+                    precio_mes=mueble_data['precio_mes'],
+                    ancho=mueble_data['ancho'],
+                    altura=mueble_data['altura'],
+                    fondo=mueble_data['fondo'],
+                    personalidad=mueble_data['personalidad']
+                )
+                db.session.add(mueble)
+                muebles.append(mueble)
+
+            except KeyError as e:
+                return jsonify({"error": f"Invalid field: {str(e)}"}), 400
+            except ValueError as e:
+                return jsonify({"error": f"Invalid value: {str(e)}"}), 400
+
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": f"Database error: {str(e)}"}), 500
+
+        return jsonify([mueble.serialize() for mueble in muebles]), 201
+
+    # Si el cuerpo de la solicitud es un objeto JSON único, procesar como un solo mueble
+    elif isinstance(request_body, dict):
+        try:
+            required_fields = ['id_codigo', 'nombre', 'disponible', 'color', 'espacio', 'estilo', 'categoria', 'precio_mes', 'ancho', 'altura', 'fondo', 'personalidad']
+            for field in required_fields:
+                if field not in request_body:
+                    return jsonify({"error": f"Missing field: {field}"}), 400
+
+            mueble = Mueble(
+                id_codigo=request_body['id_codigo'],
+                nombre=request_body['nombre'],
+                disponible=request_body['disponible'],
+                color=request_body['color'],
+                espacio=request_body['espacio'],
+                estilo=request_body['estilo'],
+                categoria=request_body['categoria'],
+                precio_mes=request_body['precio_mes'],
+                ancho=request_body['ancho'],
+                altura=request_body['altura'],
+                fondo=request_body['fondo'],
+                personalidad=request_body['personalidad']
+            )
+            db.session.add(mueble)
+            db.session.commit()
+
+            return jsonify(mueble.serialize()), 201
+
+        except KeyError as e:
+            return jsonify({"error": f"Invalid field: {str(e)}"}), 400
+        except ValueError as e:
+            return jsonify({"error": f"Invalid value: {str(e)}"}), 400
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": f"Database error: {str(e)}"}), 500
+
+    # Si el cuerpo de la solicitud no es ni un diccionario ni una lista
+    return jsonify({"error": "Request body must be a JSON object or a list of JSON objects"}), 400
 
 
-    )
-    db.session.add(mueble)
-    db.session.commit()
-    return jsonify(mueble.serialize()), 201
 
 @app.route('/mueble', methods=['GET'])
 def get_all_muebles():
@@ -212,7 +273,7 @@ def delete_mueble(id_codigo):
     if mueble:
         db.session.delete(mueble)
         db.session.commit()
-        return jsonify({"msg": "Mueble borrado correctamente"})
+        return jsonify({"msg": f"Mueble {id_codigo} borrado correctamente"})
     else:
         return jsonify({"msg": "No encontramos el mueble que desea eliminar"})
 
