@@ -6,7 +6,7 @@ db = SQLAlchemy()
 
 class User(db.Model):
     __tablename__ = 'user'
-    id = Column(Integer, primary_key=True, )
+    id = Column(Integer, primary_key=True)
     email = Column(String(120), unique=True, nullable=False)
     password = Column(String(80), nullable=False)
     is_active = Column(Boolean, nullable=False, default=True)
@@ -24,7 +24,7 @@ class User(db.Model):
             "email": self.email,
             "is_active": self.is_active,
             "address": self.address,
-             "favourites": [favourite.serialize() for favourite in self.favourites ]
+            "favourites": [favourite.serialize() for favourite in self.favoritos]
         }
 
 class Mueble(db.Model):
@@ -38,13 +38,13 @@ class Mueble(db.Model):
     estilo = Column(Enum("Industrial", "Clásico", "Minimalista", "Nórdico", "Rústico", "Vintage / Mid-Century", "Otros", name="estilo_mueble"), nullable=False)
     categoria = Column(Enum("Armarios y Cómodas", "Estanterias y Baldas", "Mesas y Escritorios", "Aparadores", "Camas y Cabeceros", "Mesillas", "Sillones y Sofás", "Lámparas", "Sillas y Taburetes", "Percheros", "Marcos y Espejos", "Otros Objetos", name="categoria_mueble"), nullable=False)
     precio_mes = Column(Integer, nullable=False)
-    fecha_entrega = Column(String, nullable= True)
-    fecha_recogida = Column(String, nullable= True)
+    fecha_entrega = Column(String)
+    fecha_recogida = Column(String)
     ancho = Column(Float, nullable=False)
     altura = Column(Float, nullable=False)
     fondo = Column(Float, nullable=False)
     personalidad = Column(String, nullable=False)
-    imagen = Column(String(255), nullable=True)
+    imagen = Column(String(255))
 
     alquileres = relationship('Alquiler', back_populates='mueble')
     favoritos = relationship('Favorito', back_populates='mueble')
@@ -69,7 +69,7 @@ class Mueble(db.Model):
             "fondo": self.fondo,
             "imagen": self.imagen,
             "personalidad": self.personalidad,
-            "favoritos": self.favoritos
+            "favoritos": [favorito.serialize() for favorito in self.favoritos]
         }
 
 class Alquiler(db.Model):

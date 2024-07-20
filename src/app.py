@@ -10,10 +10,15 @@ from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User, Mueble, Favorito
 from sqlalchemy.orm.exc import NoResultFound
+from flask_jwt_extended import JWTManager , create_access_token , get_jwt_identity
+
 #from models import Person
 
 app = Flask(__name__)
+#Importamos nuestra clave secreta para firmar los tokens
+app.config["JWT_SECRET_KEY"] = "clave_secreta"
 app.url_map.strict_slashes = False
+jwt = JWTManager(app)
 
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:
@@ -310,7 +315,18 @@ def modificar_mueble(id_codigo):
         "mensaje": "Mueble actualizado correctamente",
         "mueble": mueble.serialize()
     }), 200
-  
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    user = User.query.filter_by(email = data['email']).first()
+    if not user:
+        return jsonify({"msg": "No existe el"})
+    print(user.serialize())
+
+    return "ok"
+    
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
