@@ -10,15 +10,19 @@ from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User, Mueble, Favorito
 from sqlalchemy.orm.exc import NoResultFound
-from flask_jwt_extended import JWTManager , create_access_token , get_jwt_identity
+from flask_jwt_extended import JWTManager , create_access_token , get_jwt_identity, jwt_required
+from datetime import timedelta
+from flask_bcrypt import Bcrypt
 
 #from models import Person
 
 app = Flask(__name__)
 #Importamos nuestra clave secreta para firmar los tokens
 app.config["JWT_SECRET_KEY"] = "clave_secreta"
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(seconds = 30)
 app.url_map.strict_slashes = False
 jwt = JWTManager(app)
+bcrypt = Bcrypt(app)
 
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:
@@ -50,8 +54,11 @@ def create_user():
         abort(400)
     user = User(
         email=data['email'],
+        name = data['name'],
         password=data['password'],
         address=data['address'],
+        nacionality = data['nacionality'],
+        birthDate = data['birthDate'],
         is_active=data.get('is_active', True)
     )
     db.session.add(user)
@@ -322,11 +329,39 @@ def login():
     data = request.json
     user = User.query.filter_by(email = data['email']).first()
     if not user:
-        return jsonify({"msg": "No existe el"})
+        return jsonify({"msg": "No existe"})
     print(user.serialize())
+    access_token = create_access_token(identity=user.serialize())
+    return jsonify({"token": access_token})
 
-    return "ok"
+@app.route('/login/administrator', methods= ['POST', 'GET'])
+@jwt_required()
+def login_admin():
+    user = get_jwt_identity()
+    print(user)
+
+    response_body = {
+        "message" : "Hello from back"
+    }
     
+    return jsonify(response_body), 200
+
+@app.route('/register', methods= ['POST'])
+def register():
+    body = request.json
+    user = User()
+    if not body['password']:
+        return jsonify({"msg": "Necesitas mejorar contraseña"}), 400
+    new_user = user.create_user(
+        email = body['email'],
+        name = body['name'],
+        password = body['password'],
+        address=body['address'],
+         nacionality = body['nacionality'],
+        birthDate = body['birthDate'],
+    )
+    print(new_user)
+    return jsonify({'msg': 'Usuario creado'})
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))

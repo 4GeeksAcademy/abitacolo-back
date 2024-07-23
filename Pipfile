@@ -19,6 +19,7 @@ gunicorn = "*"
 mysqlclient = "*"
 flask-admin = "*"
 flask-jwt-extended = "*"
+flask-bcrypt = "*"
 
 [requires]
 python_version = "3.10"

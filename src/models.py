@@ -1,29 +1,57 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String, Boolean, Enum, Date, ForeignKey, Float
 from sqlalchemy.orm import relationship
+from flask_bcrypt import Bcrypt
 
 db = SQLAlchemy()
+bcrypt = Bcrypt()
 
 class User(db.Model):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     email = Column(String(120), unique=True, nullable=False)
+    name = Column(String(80), nullable=False)
     password = Column(String(80), nullable=False)
     is_active = Column(Boolean, nullable=False, default=True)
     address = Column(String(80), unique=True, nullable=False)
+    nacionality = Column(String(80), nullable=False)
+
+    birthDate = Column(Date, nullable=False)
 
     alquileres = relationship('Alquiler', back_populates='user')
     favoritos = relationship('Favorito', back_populates='user')
 
     def __repr__(self):
         return f'<User {self.email}>'
+    
+    def generate_password(self, password):
+        return bcrypt.generate_password_hash(password)
+    
+    def create_user(self,email, password, name, address , nacionality , birthDate , is_active = True ):
+        hashed_password = self.generate_password(password).decode('utf-8')
+        new_user = User (
+            email = email,
+            name = name,
+            password = hashed_password,
+            address = address,
+            nacionality = nacionality,
+            birthDate = birthDate,
+            is_active = is_active
+
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        return new_user
 
     def serialize(self):
         return {
             "id": self.id,
             "email": self.email,
+            "nombre": self.name,
             "is_active": self.is_active,
             "address": self.address,
+            "nacionality": self.nacionality,
+            "birthDate": self.birthDate,
             "favourites": [favourite.serialize() for favourite in self.favoritos]
         }
 
