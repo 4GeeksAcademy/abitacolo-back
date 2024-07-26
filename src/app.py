@@ -43,21 +43,22 @@ def sitemap():
 @app.route('/users', methods=['POST'])
 def create_user():
     data = request.get_json()
-    if not data or not all(key in data for key in ('email', 'password', 'address')):
+    if not data or not all(key in data for key in ('email', 'password')):
         abort(400, description="Faltan campos por rellenar.")
-    hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
-    user = User(
-        email=data['email'],
-        name=data['name'],
-        password=hashed_password,
-        address=data['address'],
-        nationality=data['nationality'],
-        birth_date=data['birth_date'],
-        is_active=data.get('is_active', True)
-    )
-    db.session.add(user)
-    db.session.commit()
-    return jsonify(user.serialize()), 201
+    
+    try:
+        user = User().create_user(
+            email=data['email'],
+            password=data['password'],
+            name=data.get('name'),
+            address=data.get('address'),
+            nationality=data.get('nationality'),
+            birth_date=data.get('birth_date')
+        )
+        return jsonify(user.serialize()), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 #USUARIO GET ALL
 @app.route('/users', methods=['GET'])
 def get_all_users():
@@ -86,19 +87,26 @@ def edit_user(id):
         user = User.query.filter_by(id=id).one()
     except NoResultFound:
         abort(404, description="User not found")
-    
+
     data = request.get_json()
     if not data:
         abort(400, description="No data provided for update")
-    
-    allowed_fields = ['email', 'password', 'address']
+
+    # Lista de campos permitidos para actualización
+    allowed_fields = ['email', 'password', 'name', 'address', 'nationality', 'birth_date']
+
+    # Actualización de los campos permitidos
     for key, value in data.items():
         if key in allowed_fields:
             setattr(user, key, value)
     
-    db.session.commit()
-    return jsonify({"msg": "User updated successfully", "user": user.serialize()}), 200
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        abort(500, description=f"Error updating user: {str(e)}")
 
+    return jsonify({"msg": "User updated successfully", "user": user.serialize()}), 200
 #Login USER
 @app.route('/login', methods=['POST'])
 def login():
