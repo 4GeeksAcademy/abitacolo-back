@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 3cc16c2cfaf0
+Revision ID: 91fd34f89f37
 Revises: 
-Create Date: 2024-07-23 12:43:49.963423
+Create Date: 2024-07-26 11:37:50.474820
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '3cc16c2cfaf0'
+revision = '91fd34f89f37'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,6 +22,7 @@ def upgrade():
     sa.Column('id_codigo', sa.String(), nullable=False),
     sa.Column('nombre', sa.String(length=50), nullable=False),
     sa.Column('disponible', sa.Boolean(), nullable=False),
+    sa.Column('novedad', sa.Boolean(), nullable=False),
     sa.Column('color', sa.Enum('Natural', 'Blanco / Beige / Gris', 'Negro / Gris Oscuro', 'Tonos Pastel', 'Tonos Vivos', 'Dorado / Plateado', name='color_mueble'), nullable=False),
     sa.Column('espacio', sa.Enum('Salón / Comedor', 'Dormitorio', 'Recibidor', 'Zona de Trabajo', 'Exterior', 'Otras', name='espacio_mueble'), nullable=False),
     sa.Column('estilo', sa.Enum('Industrial', 'Clásico', 'Minimalista', 'Nórdico', 'Rústico', 'Vintage / Mid-Century', 'Otros', name='estilo_mueble'), nullable=False),
@@ -39,12 +40,12 @@ def upgrade():
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('email', sa.String(length=120), nullable=False),
-    sa.Column('name', sa.String(length=80), nullable=False),
+    sa.Column('name', sa.String(length=80), nullable=True),
     sa.Column('password', sa.String(length=80), nullable=False),
-    sa.Column('is_active', sa.Boolean(), nullable=False),
-    sa.Column('address', sa.String(length=80), nullable=False),
-    sa.Column('nationality', sa.String(length=80), nullable=False),
-    sa.Column('birth_date', sa.Date(), nullable=False),
+    sa.Column('is_active', sa.Boolean(), nullable=True),
+    sa.Column('address', sa.String(length=80), nullable=True),
+    sa.Column('nationality', sa.String(length=80), nullable=True),
+    sa.Column('birth_date', sa.Date(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('address'),
     sa.UniqueConstraint('email')

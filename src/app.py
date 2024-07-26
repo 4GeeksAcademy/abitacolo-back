@@ -39,6 +39,7 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
+#USUARIO POST
 @app.route('/users', methods=['POST'])
 def create_user():
     data = request.get_json()
@@ -57,19 +58,19 @@ def create_user():
     db.session.add(user)
     db.session.commit()
     return jsonify(user.serialize()), 201
-
+#USUARIO GET ALL
 @app.route('/users', methods=['GET'])
 def get_all_users():
     all_users = User.query.all()
     return jsonify([user.serialize() for user in all_users]), 200
-
+#USUARIO GET UNICO
 @app.route('/users/<int:id>', methods=['GET'])
 def get_user(id):
     user = User.query.get(id)
     if not user:
         abort(404, description="User not found")
     return jsonify(user.serialize()), 200
-
+#USUARIO DELETE
 @app.route('/users/<int:id>', methods=['DELETE'])
 def delete_user(id):
     user = User.query.get(id)
@@ -78,7 +79,7 @@ def delete_user(id):
     db.session.delete(user)
     db.session.commit()
     return jsonify({"msg": f"User {id} deleted successfully"}), 200
-
+#USUARIO PUT
 @app.route('/users/<int:id>', methods=['PUT'])
 def edit_user(id):
     try:
@@ -98,11 +99,35 @@ def edit_user(id):
     db.session.commit()
     return jsonify({"msg": "User updated successfully", "user": user.serialize()}), 200
 
+#Login USER
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    if not data or not all(key in data for key in ('email', 'password')):
+        return jsonify({"error": "Email and password are required"}), 400
+
+    user = User.query.filter_by(email=data['email']).first()
+    if not user or not bcrypt.check_password_hash(user.password, data['password']):
+        return jsonify({"error": "Invalid credentials"}), 401
+
+    access_token = create_access_token(identity=user.id)
+    return jsonify({"token": access_token, "user": user.serialize()}), 200
+
+
+#User ADMIN
+@app.route('/protected', methods=['GET'])
+@jwt_required()
+def protected():
+    current_user_id = get_jwt_identity()
+    return jsonify({"id": current_user_id, "message": "Access to protected route"}), 200
+
+#USER FAVOURITES ALL
 @app.route('/user/favourites', methods=['GET'])
 def get_user_favourites():
     favourites = Favorito.query.all()
     return jsonify([fav.serialize() for fav in favourites]), 200
 
+#USER FAVOURITES UNIQUE
 @app.route('/favourite/mueble/<string:id_codigo>', methods=['POST'])
 def post_user_favourites(id_codigo):
     data = request.get_json()
@@ -128,6 +153,24 @@ def post_user_favourites(id_codigo):
 
     return jsonify(user_favourite.serialize()), 201
 
+#DELETE FAVORITOS
+@app.route('/favoritos/<int:id>', methods=['DELETE'])
+def delete_favorito(id):
+    favorito = Favorito.query.get(id)
+    
+    if favorito is None:
+        abort(404, description="Favorito no encontrado")
+    
+    try:
+        db.session.delete(favorito)
+        db.session.commit()
+        return jsonify({"message": "Favorito eliminado con éxito"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+
+#Post MUEBLE
 @app.route('/mueble', methods=['POST'])
 def create_muebles():
     request_body = request.get_json()
@@ -186,18 +229,19 @@ def create_muebles():
 
     return jsonify({"error": "Request body must be a JSON object or a list of JSON objects"}), 400
 
+#GET TODOS MUEBLES
 @app.route('/mueble', methods=['GET'])
 def get_all_muebles():
     all_muebles = Mueble.query.all()
     return jsonify([mueble.serialize() for mueble in all_muebles]), 200
-
+#GET MUEBLE UNICO
 @app.route('/mueble/<string:id_codigo>', methods=['GET'])
 def get_mueble(id_codigo):
     mueble = Mueble.query.get(id_codigo)
     if not mueble:
         abort(404, description="Mueble not found")
     return jsonify(mueble.serialize()), 200
-
+#DELETE MUEBLE
 @app.route('/mueble/<string:id_codigo>', methods=['DELETE'])
 def delete_mueble(id_codigo):
     mueble = Mueble.query.get(id_codigo)
@@ -207,6 +251,7 @@ def delete_mueble(id_codigo):
     db.session.commit()
     return jsonify({"msg": f"Mueble {id_codigo} deleted successfully"}), 200
 
+#PUT MUEBLE
 @app.route('/mueble/<string:id_codigo>', methods=['PUT'])
 def modify_mueble(id_codigo):
     try:
@@ -226,39 +271,7 @@ def modify_mueble(id_codigo):
     db.session.commit()
     return jsonify({"msg": "Mueble updated successfully", "mueble": mueble.serialize()}), 200
 
-@app.route('/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    if not data or not all(key in data for key in ('email', 'password')):
-        return jsonify({"error": "Email and password are required"}), 400
 
-    user = User.query.filter_by(email=data['email']).first()
-    if not user or not bcrypt.check_password_hash(user.password, data['password']):
-        return jsonify({"error": "Invalid credentials"}), 401
-
-    access_token = create_access_token(identity=user.id)
-    return jsonify({"token": access_token, "user": user.serialize()}), 200
-
-@app.route('/protected', methods=['GET'])
-@jwt_required()
-def protected():
-    current_user_id = get_jwt_identity()
-    return jsonify({"id": current_user_id, "message": "Access to protected route"}), 200
-
-@app.route('/favoritos/<int:id>', methods=['DELETE'])
-def delete_favorito(id):
-    favorito = Favorito.query.get(id)
-    
-    if favorito is None:
-        abort(404, description="Favorito no encontrado")
-    
-    try:
-        db.session.delete(favorito)
-        db.session.commit()
-        return jsonify({"message": "Favorito eliminado con éxito"}), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":
