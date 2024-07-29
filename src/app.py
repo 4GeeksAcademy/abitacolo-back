@@ -186,7 +186,7 @@ def create_muebles():
     if isinstance(request_body, list):
         muebles = []
         for mueble_data in request_body:
-            required_fields = ['id_codigo', 'nombre', 'disponible', 'color', 'espacio', 'estilo', 'categoria', 'precio_mes', 'ancho', 'altura', 'fondo', 'personalidad']
+            required_fields = ['id_codigo', 'nombre', 'disponible','novedad', 'color', 'espacio', 'estilo', 'categoria', 'precio_mes', 'ancho', 'altura', 'fondo', 'personalidad']
             for field in required_fields:
                 if field not in mueble_data:
                     return jsonify({"error": f"Missing field: {field}"}), 400
@@ -278,8 +278,6 @@ def modify_mueble(id_codigo):
 
     db.session.commit()
     return jsonify({"msg": "Mueble updated successfully", "mueble": mueble.serialize()}), 200
-
-
 
 
 if __name__ == "__main__":
