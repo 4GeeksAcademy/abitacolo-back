@@ -59,7 +59,7 @@ class Mueble(db.Model):
     id_codigo = Column(String, primary_key=True)
     nombre = Column(String(50), nullable=False)
     disponible = Column(Boolean, nullable=False)
-    novedad = Column(Boolean)
+    novedad = Column(Boolean, nullable=False)
     color = Column(Enum("Natural", "Blanco / Beige / Gris", "Negro / Gris Oscuro", "Tonos Pastel", "Tonos Vivos", "Dorado / Plateado", name="color_mueble"), nullable=False)
     espacio = Column(Enum("Salón / Comedor", "Dormitorio", "Recibidor", "Zona de Trabajo", "Exterior", "Otras", name="espacio_mueble"), nullable=False)
     estilo = Column(Enum("Industrial", "Clásico", "Minimalista", "Nórdico", "Rústico", "Vintage / Mid-Century", "Otros", name="estilo_mueble"), nullable=False)
@@ -84,6 +84,7 @@ class Mueble(db.Model):
             "id_codigo": self.id_codigo,
             "nombre": self.nombre,
             "disponible": self.disponible,
+            "novedad":self.novedad,
             "color": self.color,
             "espacio": self.espacio,
             "estilo": self.estilo,

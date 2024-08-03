@@ -216,7 +216,7 @@ def create_muebles():
     if isinstance(request_body, list):
         muebles = []
         for mueble_data in request_body:
-            required_fields = ['id_codigo', 'nombre', 'disponible', 'color', 'espacio', 'estilo', 'categoria', 'precio_mes', 'ancho', 'altura', 'fondo', 'personalidad']
+            required_fields = ['id_codigo', 'nombre', 'disponible','novedad', 'color', 'espacio', 'estilo', 'categoria', 'precio_mes', 'ancho', 'altura', 'fondo', 'personalidad']
             for field in required_fields:
                 if field not in mueble_data:
                     return jsonify({"error": f"Missing field: {field}"}), 400
@@ -225,6 +225,7 @@ def create_muebles():
                 id_codigo=mueble_data['id_codigo'],
                 nombre=mueble_data['nombre'],
                 disponible=mueble_data['disponible'],
+                novedad=mueble_data['novedad'],
                 color=mueble_data['color'],
                 espacio=mueble_data['espacio'],
                 estilo=mueble_data['estilo'],
@@ -242,7 +243,7 @@ def create_muebles():
         return jsonify([mueble.serialize() for mueble in muebles]), 201
 
     elif isinstance(request_body, dict):
-        required_fields = ['id_codigo', 'nombre', 'disponible', 'color', 'espacio', 'estilo', 'categoria', 'precio_mes', 'ancho', 'altura', 'fondo', 'personalidad']
+        required_fields = ['id_codigo', 'nombre', 'disponible','novedad', 'color', 'espacio', 'estilo', 'categoria', 'precio_mes', 'ancho', 'altura', 'fondo', 'personalidad']
         for field in required_fields:
             if field not in request_body:
                 return jsonify({"error": f"Missing field: {field}"}), 400
@@ -251,6 +252,7 @@ def create_muebles():
             id_codigo=request_body['id_codigo'],
             nombre=request_body['nombre'],
             disponible=request_body['disponible'],
+            novedad=request_body['novedad'],
             color=request_body['color'],
             espacio=request_body['espacio'],
             estilo=request_body['estilo'],
@@ -305,7 +307,7 @@ def modify_mueble(id_codigo):
     if not data:
         abort(400, description="No data provided for update")
 
-    allowed_fields = ['nombre', 'disponible', 'color', 'espacio', 'estilo', 'categoria', 'precio_mes', 'fecha_entrega', 'fecha_recogida', 'ancho', 'altura', 'fondo', 'personalidad', 'imagen']
+    allowed_fields = ['nombre', 'disponible','novedad', 'color', 'espacio', 'estilo', 'categoria', 'precio_mes', 'fecha_entrega', 'fecha_recogida', 'ancho', 'altura', 'fondo', 'personalidad', 'imagen']
     for key, value in data.items():
         if key in allowed_fields:
             setattr(mueble, key, value)
