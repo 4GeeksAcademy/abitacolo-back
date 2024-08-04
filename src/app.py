@@ -217,7 +217,6 @@ def create_muebles():
         muebles = []
         for mueble_data in request_body:
             required_fields = ['id_codigo', 'nombre', 'disponible','novedad', 'color', 'espacio', 'estilo', 'categoria', 'precio_mes', 'ancho', 'altura', 'fondo', 'personalidad']
-            required_fields = ['id_codigo', 'nombre', 'disponible','novedad', 'color', 'espacio', 'estilo', 'categoria', 'precio_mes', 'ancho', 'altura', 'fondo', 'personalidad']
             for field in required_fields:
                 if field not in mueble_data:
                     return jsonify({"error": f"Missing field: {field}"}), 400
