@@ -17,7 +17,7 @@ from models import db, User, Mueble, Favorito
 
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "clave_secreta")
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(seconds=30)
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)  # Cambiado a 1 hora
 app.url_map.strict_slashes = False
 jwt = JWTManager(app)
 bcrypt = Bcrypt(app)
@@ -39,6 +39,15 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
+# JWT error handlers
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    return jsonify({"message": "Token has expired"}), 401
+
+@jwt.invalid_token_loader
+def invalid_token_callback(error):
+    return jsonify({"message": "Invalid token"}), 401
+
 #USUARIO POST
 @app.route('/users', methods=['POST'])
 def create_user():
@@ -59,20 +68,26 @@ def create_user():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
 #USUARIO GET ALL
 @app.route('/users', methods=['GET'])
+@jwt_required()
 def get_all_users():
     all_users = User.query.all()
     return jsonify([user.serialize() for user in all_users]), 200
+
 #USUARIO GET UNICO
 @app.route('/users/<int:id>', methods=['GET'])
+@jwt_required()
 def get_user(id):
     user = User.query.get(id)
     if not user:
         abort(404, description="User not found")
     return jsonify(user.serialize()), 200
+
 #USUARIO DELETE
 @app.route('/users/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_user(id):
     user = User.query.get(id)
     if not user:
@@ -80,8 +95,10 @@ def delete_user(id):
     db.session.delete(user)
     db.session.commit()
     return jsonify({"msg": f"User {id} deleted successfully"}), 200
+
 #USUARIO PUT
 @app.route('/users/<int:id>', methods=['PUT'])
+@jwt_required()
 def edit_user(id):
     try:
         user = User.query.filter_by(id=id).one()
@@ -121,6 +138,16 @@ def login():
     access_token = create_access_token(identity=user.id)
     return jsonify({"token": access_token, "user": user.serialize()}), 200
 
+#Verify Token
+@app.route('/verify-token', methods=['GET'])
+@jwt_required()
+def verify_token():
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+    if user:
+        return jsonify({"valid": True, "user": user.serialize()}), 200
+    else:
+        return jsonify({"valid": False}), 401
 
 #User ADMIN
 @app.route('/protected', methods=['GET'])
@@ -131,15 +158,17 @@ def protected():
 
 #USER FAVOURITES ALL
 @app.route('/user/favourites', methods=['GET'])
+@jwt_required()
 def get_user_favourites():
     favourites = Favorito.query.all()
     return jsonify([fav.serialize() for fav in favourites]), 200
 
 #USER FAVOURITES UNIQUE
 @app.route('/favourite/mueble/<string:id_codigo>', methods=['POST'])
+@jwt_required()
 def post_user_favourites(id_codigo):
     data = request.get_json()
-    user_id = data.get("user_id")
+    user_id = get_jwt_identity()
     if not user_id:
         return jsonify({"error": "User ID is required"}), 400
 
@@ -163,6 +192,7 @@ def post_user_favourites(id_codigo):
 
 #DELETE FAVORITOS
 @app.route('/favoritos/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_favorito(id):
     favorito = Favorito.query.get(id)
     
@@ -177,15 +207,16 @@ def delete_favorito(id):
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-
 #Post MUEBLE
 @app.route('/mueble', methods=['POST'])
+@jwt_required()
 def create_muebles():
     request_body = request.get_json()
 
     if isinstance(request_body, list):
         muebles = []
         for mueble_data in request_body:
+            required_fields = ['id_codigo', 'nombre', 'disponible','novedad', 'color', 'espacio', 'estilo', 'categoria', 'precio_mes', 'ancho', 'altura', 'fondo', 'personalidad']
             required_fields = ['id_codigo', 'nombre', 'disponible','novedad', 'color', 'espacio', 'estilo', 'categoria', 'precio_mes', 'ancho', 'altura', 'fondo', 'personalidad']
             for field in required_fields:
                 if field not in mueble_data:
@@ -195,6 +226,7 @@ def create_muebles():
                 id_codigo=mueble_data['id_codigo'],
                 nombre=mueble_data['nombre'],
                 disponible=mueble_data['disponible'],
+                novedad=mueble_data['novedad'],
                 color=mueble_data['color'],
                 espacio=mueble_data['espacio'],
                 estilo=mueble_data['estilo'],
@@ -212,7 +244,7 @@ def create_muebles():
         return jsonify([mueble.serialize() for mueble in muebles]), 201
 
     elif isinstance(request_body, dict):
-        required_fields = ['id_codigo', 'nombre', 'disponible', 'color', 'espacio', 'estilo', 'categoria', 'precio_mes', 'ancho', 'altura', 'fondo', 'personalidad']
+        required_fields = ['id_codigo', 'nombre', 'disponible','novedad', 'color', 'espacio', 'estilo', 'categoria', 'precio_mes', 'ancho', 'altura', 'fondo', 'personalidad']
         for field in required_fields:
             if field not in request_body:
                 return jsonify({"error": f"Missing field: {field}"}), 400
@@ -221,6 +253,7 @@ def create_muebles():
             id_codigo=request_body['id_codigo'],
             nombre=request_body['nombre'],
             disponible=request_body['disponible'],
+            novedad=request_body['novedad'],
             color=request_body['color'],
             espacio=request_body['espacio'],
             estilo=request_body['estilo'],
@@ -242,6 +275,7 @@ def create_muebles():
 def get_all_muebles():
     all_muebles = Mueble.query.all()
     return jsonify([mueble.serialize() for mueble in all_muebles]), 200
+
 #GET MUEBLE UNICO
 @app.route('/mueble/<string:id_codigo>', methods=['GET'])
 def get_mueble(id_codigo):
@@ -249,8 +283,10 @@ def get_mueble(id_codigo):
     if not mueble:
         abort(404, description="Mueble not found")
     return jsonify(mueble.serialize()), 200
+
 #DELETE MUEBLE
 @app.route('/mueble/<string:id_codigo>', methods=['DELETE'])
+@jwt_required()
 def delete_mueble(id_codigo):
     mueble = Mueble.query.get(id_codigo)
     if not mueble:
@@ -261,6 +297,7 @@ def delete_mueble(id_codigo):
 
 #PUT MUEBLE
 @app.route('/mueble/<string:id_codigo>', methods=['PUT'])
+@jwt_required()
 def modify_mueble(id_codigo):
     try:
         mueble = Mueble.query.filter_by(id_codigo=id_codigo).one()
@@ -271,14 +308,13 @@ def modify_mueble(id_codigo):
     if not data:
         abort(400, description="No data provided for update")
 
-    allowed_fields = ['nombre', 'disponible', 'color', 'espacio', 'estilo', 'categoria', 'precio_mes', 'fecha_entrega', 'fecha_recogida', 'ancho', 'altura', 'fondo', 'personalidad', 'imagen']
+    allowed_fields = ['nombre', 'disponible','novedad', 'color', 'espacio', 'estilo', 'categoria', 'precio_mes', 'fecha_entrega', 'fecha_recogida', 'ancho', 'altura', 'fondo', 'personalidad', 'imagen']
     for key, value in data.items():
         if key in allowed_fields:
             setattr(mueble, key, value)
 
     db.session.commit()
     return jsonify({"msg": "Mueble updated successfully", "mueble": mueble.serialize()}), 200
-
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=3000, debug=False)

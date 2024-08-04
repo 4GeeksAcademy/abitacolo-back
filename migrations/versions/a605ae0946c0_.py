@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 0aca854d0eae
+Revision ID: a605ae0946c0
 Revises: 
-Create Date: 2024-07-26 16:04:30.973727
+Create Date: 2024-08-03 18:36:18.014693
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0aca854d0eae'
+revision = 'a605ae0946c0'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,7 +22,7 @@ def upgrade():
     sa.Column('id_codigo', sa.String(), nullable=False),
     sa.Column('nombre', sa.String(length=50), nullable=False),
     sa.Column('disponible', sa.Boolean(), nullable=False),
-    sa.Column('novedad', sa.Boolean(), nullable=True),
+    sa.Column('novedad', sa.Boolean(), nullable=False),
     sa.Column('color', sa.Enum('Natural', 'Blanco / Beige / Gris', 'Negro / Gris Oscuro', 'Tonos Pastel', 'Tonos Vivos', 'Dorado / Plateado', name='color_mueble'), nullable=False),
     sa.Column('espacio', sa.Enum('Salón / Comedor', 'Dormitorio', 'Recibidor', 'Zona de Trabajo', 'Exterior', 'Otras', name='espacio_mueble'), nullable=False),
     sa.Column('estilo', sa.Enum('Industrial', 'Clásico', 'Minimalista', 'Nórdico', 'Rústico', 'Vintage / Mid-Century', 'Otros', name='estilo_mueble'), nullable=False),
