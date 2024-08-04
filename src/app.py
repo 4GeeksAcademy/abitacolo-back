@@ -92,14 +92,13 @@ def edit_user(id):
     if not data:
         abort(400, description="No data provided for update")
 
-    # Lista de campos permitidos para actualización
     allowed_fields = ['email', 'password', 'name', 'address', 'nationality', 'birth_date']
-
-    # Actualización de los campos permitidos
     for key, value in data.items():
         if key in allowed_fields:
+            if key == 'password':
+                value = bcrypt.generate_password_hash(value).decode('utf-8')
             setattr(user, key, value)
-    
+
     try:
         db.session.commit()
     except Exception as e:
@@ -107,6 +106,7 @@ def edit_user(id):
         abort(500, description=f"Error updating user: {str(e)}")
 
     return jsonify({"msg": "User updated successfully", "user": user.serialize()}), 200
+
 #Login USER
 @app.route('/login', methods=['POST'])
 def login():
